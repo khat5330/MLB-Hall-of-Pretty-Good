@@ -16,7 +16,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "MLB Hall of Pretty Good — Inductee Database" },
       {
         property: "og:description",
-        content: "Search inductees and browse career and season-by-season stats.",
+        content: "Search every inductee to the MLB Hall of Pretty Good and browse full career and season-by-season statistics.",
       },
     ],
   }),
