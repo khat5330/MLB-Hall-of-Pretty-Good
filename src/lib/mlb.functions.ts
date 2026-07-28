@@ -1,15 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
 
+export type StatMap = Record<string, string | number | null>;
+
 export type StatRow = {
   season: string;
   team: string;
   league: string;
-  stat: Record<string, unknown>;
+  stat: StatMap;
 };
 
 export type PlayerStats = {
   group: "hitting" | "pitching";
-  career: Record<string, unknown> | null;
+  career: StatMap | null;
   seasons: StatRow[];
 };
 
@@ -39,17 +41,25 @@ export const getPlayerStats = createServerFn({ method: "GET" })
     const careerBlock = blocks.find((b) => b.type?.displayName === "career");
     const yearBlock = blocks.find((b) => b.type?.displayName === "yearByYear");
 
+    const clean = (stat?: Record<string, unknown>): StatMap => {
+      const out: StatMap = {};
+      for (const [k, v] of Object.entries(stat ?? {})) {
+        if (typeof v === "string" || typeof v === "number") out[k] = v;
+      }
+      return out;
+    };
+
     const leagueAbbrev = (name?: string) =>
       name === "American League" ? "AL" : name === "National League" ? "NL" : (name ?? "");
 
     return {
       group: data.group,
-      career: careerBlock?.splits?.[0]?.stat ?? null,
+      career: careerBlock?.splits?.[0] ? clean(careerBlock.splits[0].stat) : null,
       seasons: (yearBlock?.splits ?? []).map((s) => ({
         season: s.season ?? "",
         team: s.team?.name ?? "",
         league: leagueAbbrev(s.league?.name),
-        stat: s.stat ?? {},
+        stat: clean(s.stat),
       })),
     };
   });
