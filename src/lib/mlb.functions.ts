@@ -52,9 +52,14 @@ export const getPlayerStats = createServerFn({ method: "GET" })
     const leagueAbbrev = (name?: string) =>
       name === "American League" ? "AL" : name === "National League" ? "NL" : (name ?? "");
 
+    const careerStat = careerBlock?.splits?.[0] ? clean(careerBlock.splits[0].stat) : {};
+    if (data.bwar != null) {
+      careerStat.bwar = data.bwar;
+    }
+
     return {
       group: data.group,
-      career: careerBlock?.splits?.[0] ? clean(careerBlock.splits[0].stat) : null,
+      career: Object.keys(careerStat).length > 0 ? careerStat : null,
       seasons: (yearBlock?.splits ?? []).map((s) => ({
         season: s.season ?? "",
         team: s.team?.name ?? "",
