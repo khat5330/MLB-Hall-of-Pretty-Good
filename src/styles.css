@@ -143,5 +143,51 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+  }
+}
+
+/* Reference-style stat tables */
+@utility stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+
+  & thead th {
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+    font-weight: 600;
+    text-align: right;
+    padding: 0.375rem 0.5rem;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+  }
+
+  & thead th:first-child,
+  & tbody td:first-child {
+    text-align: left;
+  }
+
+  & tbody td {
+    text-align: right;
+    padding: 0.3125rem 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  & tbody tr:nth-child(even) {
+    background-color: var(--color-muted);
+  }
+
+  & tbody tr:hover {
+    background-color: var(--color-accent);
   }
 }
