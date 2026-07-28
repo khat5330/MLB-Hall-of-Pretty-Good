@@ -155,7 +155,7 @@ function PlayerPage() {
                     {labels.get(key) ?? key}
                   </dt>
                   <dd className="mt-1 font-mono text-lg font-semibold text-primary">
-                    {fmt(data.career?.[key])}
+                    {fmt(data.career?.[key], key)}
                   </dd>
                 </div>
               ))}
@@ -181,7 +181,7 @@ function PlayerPage() {
                   <tr>
                     <td className="font-semibold">Total</td>
                     {cols.map(([key]) => (
-                      <td key={key}>{fmt(data.career?.[key])}</td>
+                      <td key={key}>{fmt(data.career?.[key], key)}</td>
                     ))}
                   </tr>
                 </tbody>
@@ -215,7 +215,7 @@ function PlayerPage() {
                     <td>{row.team || "Season total"}</td>
                     <td>{row.league}</td>
                     {cols.map(([key]) => (
-                      <td key={key}>{fmt(row.stat[key])}</td>
+                      <td key={key}>{fmt(row.stat[key], key)}</td>
                     ))}
                   </tr>
                 ))}
