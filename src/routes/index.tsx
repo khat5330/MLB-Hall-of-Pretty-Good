@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Star } from "lucide-react";
+import { Crown, Star } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { inductees } from "@/data/inductees";
 
@@ -99,6 +99,12 @@ function Index() {
                       <Star
                         aria-label="Inner Circle inductee"
                         className="ml-1.5 inline-block h-3.5 w-3.5 -translate-y-px fill-[hsl(45_95%_50%)] text-[hsl(45_80%_38%)]"
+                      />
+                    )}
+                    {p.prettyUnanimous && (
+                      <Crown
+                        aria-label="Pretty Unanimous inductee"
+                        className="ml-1 inline-block h-3.5 w-3.5 -translate-y-px fill-[hsl(45_95%_50%)] text-[hsl(45_80%_38%)]"
                       />
                     )}
                   </td>

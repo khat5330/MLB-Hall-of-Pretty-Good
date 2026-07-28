@@ -9,6 +9,7 @@ export type Inductee = {
   throws: string;
   bwar?: number | null;
   innerCircle?: boolean;
+  prettyUnanimous?: boolean;
 };
 
 /**
@@ -43,7 +44,7 @@ export const inductees: Inductee[] = [
   { id: 518960, slug: "jonathan-lucroy", name: "Jonathan Lucroy", pos: "C", debut: "2010", last: "2021", bats: "R", throws: "R", bwar: 17.5 },
   { id: 457918, slug: "j-a-happ", name: "J.A. Happ", pos: "P", debut: "2007", last: "2021", bats: "L", throws: "L", bwar: 21.1 },
   { id: 448281, slug: "sean-doolittle", name: "Sean Doolittle", pos: "P", debut: "2012", last: "2022", bats: "L", throws: "L", bwar: 10.0 , innerCircle: true },
-  { id: 430945, slug: "adam-jones", name: "Adam Jones", pos: "CF", debut: "2006", last: "2019", bats: "R", throws: "R", bwar: 32.5 , innerCircle: true },
+  { id: 430945, slug: "adam-jones", name: "Adam Jones", pos: "CF", debut: "2006", last: "2019", bats: "R", throws: "R", bwar: 32.5 , innerCircle: true, prettyUnanimous: true },
   { id: 592743, slug: "andrelton-simmons", name: "Andrelton Simmons", pos: "SS", debut: "2012", last: "2022", bats: "R", throws: "R", bwar: 36.5 , innerCircle: true },
   { id: 123801, slug: "tim-wakefield", name: "Tim Wakefield", pos: "P", debut: "1992", last: "2011", bats: "R", throws: "R", bwar: 34.4 , innerCircle: true },
   { id: 461858, slug: "trevor-plouffe", name: "Trevor Plouffe", pos: "3B", debut: "2010", last: "2018", bats: "R", throws: "R", bwar: 7.4 },
@@ -84,7 +85,7 @@ export const inductees: Inductee[] = [
   { id: 110009, slug: "jim-abbott", name: "Jim Abbott", pos: "P", debut: "1989", last: "1999", bats: "L", throws: "L", bwar: 19.6 },
   { id: 114971, slug: "tom-gordon", name: "Tom Gordon", pos: "P", debut: "1988", last: "2009", bats: "R", throws: "R", bwar: 35.0 , innerCircle: true },
   { id: 150212, slug: "michael-cuddyer", name: "Michael Cuddyer", pos: "RF", debut: "2001", last: "2015", bats: "R", throws: "R", bwar: 17.8 , innerCircle: true },
-  { id: 453568, slug: "charlie-blackmon", name: "Charlie Blackmon", pos: "CF", debut: "2011", last: "2024", bats: "L", throws: "L", bwar: 21.5 , innerCircle: true },
+  { id: 453568, slug: "charlie-blackmon", name: "Charlie Blackmon", pos: "CF", debut: "2011", last: "2024", bats: "L", throws: "L", bwar: 21.5 , innerCircle: true, prettyUnanimous: true },
   { id: 123211, slug: "mickey-tettleton", name: "Mickey Tettleton", pos: "C", debut: "1984", last: "1997", bats: "S", throws: "R", bwar: 29.3 },
   { id: 150359, slug: "a-j-burnett", name: "A.J. Burnett", pos: "P", debut: "1999", last: "2015", bats: "R", throws: "R", bwar: 28.8 , innerCircle: true },
   { id: 133225, slug: "ryan-dempster", name: "Ryan Dempster", pos: "P", debut: "1998", last: "2013", bats: "R", throws: "R", bwar: 18.6 },
@@ -94,7 +95,7 @@ export const inductees: Inductee[] = [
   { id: 334393, slug: "juan-pierre", name: "Juan Pierre", pos: "CF", debut: "2000", last: "2013", bats: "L", throws: "L", bwar: 17.3 , innerCircle: true },
   { id: 112064, slug: "joe-carter", name: "Joe Carter", pos: "LF", debut: "1983", last: "1998", bats: "R", throws: "R", bwar: 19.5 , innerCircle: true },
   { id: 453192, slug: "andrew-miller", name: "Andrew Miller", pos: "P", debut: "2006", last: "2021", bats: "L", throws: "L", bwar: 7.7 , innerCircle: true },
-  { id: 425902, slug: "prince-fielder", name: "Prince Fielder", pos: "1B", debut: "2005", last: "2016", bats: "L", throws: "R", bwar: 23.6 , innerCircle: true },
+  { id: 425902, slug: "prince-fielder", name: "Prince Fielder", pos: "1B", debut: "2005", last: "2016", bats: "L", throws: "R", bwar: 23.6 , innerCircle: true, prettyUnanimous: true },
   { id: 542255, slug: "ender-inciarte", name: "Ender Inciarte", pos: "CF", debut: "2014", last: "2022", bats: "L", throws: "L", bwar: 17.9 },
   { id: 114102, slug: "mark-fidrych", name: "Mark Fidrych", pos: "P", debut: "1976", last: "1980", bats: "R", throws: "R", bwar: 11.3 },
   { id: 460086, slug: "alex-gordon", name: "Alex Gordon", pos: "LF", debut: "2007", last: "2020", bats: "L", throws: "R", bwar: 34.8 , innerCircle: true },
