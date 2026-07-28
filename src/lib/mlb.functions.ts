@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { seasonBwar } from "@/data/seasonBwar";
 
 export type StatMap = Record<string, string | number | null>;
 
@@ -57,14 +58,30 @@ export const getPlayerStats = createServerFn({ method: "GET" })
       careerStat.bwar = data.bwar;
     }
 
+    // Season-by-season Baseball-Reference WAR, keyed by season year for this player.
+    // A season's bWAR is a full-season total, so when the MLB API splits a season
+    // across multiple teams we attribute the total to the first stint only and
+    // leave the other stint rows blank to avoid double-counting.
+    const seasonWar = seasonBwar[data.id] ?? {};
+    const usedSeasons = new Set<string>();
+
     return {
       group: data.group,
       career: Object.keys(careerStat).length > 0 ? careerStat : null,
-      seasons: (yearBlock?.splits ?? []).map((s) => ({
-        season: s.season ?? "",
-        team: s.team?.name ?? "",
-        league: leagueAbbrev(s.league?.name),
-        stat: clean(s.stat),
-      })),
+      seasons: (yearBlock?.splits ?? []).map((s) => {
+        const season = s.season ?? "";
+        const stat = clean(s.stat);
+        const year = Number(season);
+        if (!usedSeasons.has(season) && Number.isFinite(year) && year in seasonWar) {
+          stat.bwar = seasonWar[year];
+          usedSeasons.add(season);
+        }
+        return {
+          season,
+          team: s.team?.name ?? "",
+          league: leagueAbbrev(s.league?.name),
+          stat,
+        };
+      }),
     };
   });
