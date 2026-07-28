@@ -1,7 +1,7 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { Star } from "lucide-react";
+import { Crown, Star } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { inducteesBySlug, type Inductee } from "@/data/inductees";
 import { getPlayerStats, type StatMap } from "@/lib/mlb.functions";
@@ -113,6 +113,7 @@ function PlayerPage() {
   const player = inducteesBySlug.get(slug)!;
   const { data } = useSuspenseQuery(statsQueryOptions(player));
   const [showInnerCircle, setShowInnerCircle] = useState(false);
+  const [showPrettyUnanimous, setShowPrettyUnanimous] = useState(false);
 
   const isPitcher = data.group === "pitching";
   const cols = isPitcher ? PITCHING_COLS : HITTING_COLS;
@@ -143,12 +144,32 @@ function PlayerPage() {
                 <Star className="h-6 w-6 fill-[hsl(45_95%_50%)] text-[hsl(45_80%_38%)] drop-shadow-sm sm:h-8 sm:w-8" />
               </button>
             )}
+            {player.prettyUnanimous && (
+              <button
+                type="button"
+                onClick={() => setShowPrettyUnanimous((v) => !v)}
+                aria-expanded={showPrettyUnanimous}
+                aria-label="Pretty Unanimous inductee — what does this mean?"
+                title="Pretty Unanimous inductee"
+                className="rounded-sm p-0.5 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <Crown className="h-6 w-6 fill-[hsl(45_95%_50%)] text-[hsl(45_80%_38%)] drop-shadow-sm sm:h-8 sm:w-8" />
+              </button>
+            )}
           </h1>
           {player.innerCircle && showInnerCircle && (
             <p className="mt-2 border-l-4 border-[hsl(45_95%_50%)] bg-secondary px-3 py-2 text-sm text-foreground">
               <span className="font-semibold">Inner Circle:</span> {player.name} is a member of
               the Hall of Pretty Good Inner Circle, having received at least 90% of the vote
               from the community.
+            </p>
+          )}
+          {player.prettyUnanimous && showPrettyUnanimous && (
+            <p className="mt-2 border-l-4 border-[hsl(45_95%_50%)] bg-secondary px-3 py-2 text-sm text-foreground">
+              <span className="font-semibold">Pretty Unanimous:</span> {player.name} holds the
+              high honor of being a Pretty Unanimous inductee to the Hall of Pretty Good, having
+              received 99% of the community&apos;s vote — one of the most celebrated distinctions
+              the Hall can bestow.
             </p>
           )}
           <p className="mt-1 text-sm text-muted-foreground">
