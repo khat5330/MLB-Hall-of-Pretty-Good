@@ -21,6 +21,7 @@ const HITTING_COLS: Array<[string, string]> = [
   ["obp", "OBP"],
   ["slg", "SLG"],
   ["ops", "OPS"],
+  ["bwar", "bWAR"],
 ];
 
 const PITCHING_COLS: Array<[string, string]> = [
@@ -38,10 +39,11 @@ const PITCHING_COLS: Array<[string, string]> = [
   ["baseOnBalls", "BB"],
   ["strikeOuts", "SO"],
   ["whip", "WHIP"],
+  ["bwar", "bWAR"],
 ];
 
-const HITTING_HERO = ["gamesPlayed", "hits", "homeRuns", "rbi", "stolenBases", "avg", "obp", "ops"];
-const PITCHING_HERO = ["wins", "losses", "era", "inningsPitched", "strikeOuts", "whip", "saves", "gamesStarted"];
+const HITTING_HERO = ["gamesPlayed", "hits", "homeRuns", "rbi", "stolenBases", "avg", "obp", "ops", "bwar"];
+const PITCHING_HERO = ["wins", "losses", "era", "inningsPitched", "strikeOuts", "whip", "saves", "gamesStarted", "bwar"];
 
 const statsQueryOptions = (player: Inductee) =>
   queryOptions({
