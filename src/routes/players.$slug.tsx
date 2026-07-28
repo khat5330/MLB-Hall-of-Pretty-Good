@@ -47,10 +47,10 @@ const PITCHING_HERO = ["wins", "losses", "era", "inningsPitched", "strikeOuts", 
 
 const statsQueryOptions = (player: Inductee) =>
   queryOptions({
-    queryKey: ["player-stats", player.id, player.pos],
+    queryKey: ["player-stats", player.id, player.pos, player.bwar],
     queryFn: () =>
       getPlayerStats({
-        data: { id: player.id, group: player.pos === "P" ? "pitching" : "hitting" },
+        data: { id: player.id, group: player.pos === "P" ? "pitching" : "hitting", bwar: player.bwar },
       }),
     staleTime: 1000 * 60 * 60,
   });
@@ -99,9 +99,10 @@ export const Route = createFileRoute("/players/$slug")({
   ),
 });
 
-function fmt(value: StatMap[string] | undefined) {
+function fmt(value: StatMap[string] | undefined, key?: string) {
   if (value === undefined || value === null || value === "" || value === "-.--" || value === ".---")
     return "—";
+  if (key === "bwar" && typeof value === "number") return value.toFixed(1);
   return String(value);
 }
 
