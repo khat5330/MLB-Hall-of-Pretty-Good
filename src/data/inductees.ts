@@ -88,6 +88,16 @@ export const inductees: Inductee[] = [
   { id: 150359, slug: "a-j-burnett", name: "A.J. Burnett", pos: "P", debut: "1999", last: "2015", bats: "R", throws: "R", bwar: 28.8 },
   { id: 133225, slug: "ryan-dempster", name: "Ryan Dempster", pos: "P", debut: "1998", last: "2013", bats: "R", throws: "R", bwar: 18.6 },
   { id: 434622, slug: "ubaldo-jimenez", name: "Ubaldo Jiménez", pos: "P", debut: "2006", last: "2017", bats: "R", throws: "R", bwar: 20.4 },
+  { id: 111312, slug: "oil-can-boyd", name: "Dennis \"Oil Can\" Boyd", pos: "P", debut: "1982", last: "1991", bats: "R", throws: "R", bwar: 17.3 },
+  { id: 117339, slug: "john-kruk", name: "John Kruk", pos: "1B", debut: "1986", last: "1995", bats: "L", throws: "L", bwar: 25.1 },
+  { id: 334393, slug: "juan-pierre", name: "Juan Pierre", pos: "CF", debut: "2000", last: "2013", bats: "L", throws: "L", bwar: 17.3 },
+  { id: 112064, slug: "joe-carter", name: "Joe Carter", pos: "LF", debut: "1983", last: "1998", bats: "R", throws: "R", bwar: 19.5 },
+  { id: 453192, slug: "andrew-miller", name: "Andrew Miller", pos: "P", debut: "2006", last: "2021", bats: "L", throws: "L", bwar: 7.7 },
+  { id: 425902, slug: "prince-fielder", name: "Prince Fielder", pos: "1B", debut: "2005", last: "2016", bats: "L", throws: "R", bwar: 23.6 },
+  { id: 542255, slug: "ender-inciarte", name: "Ender Inciarte", pos: "CF", debut: "2014", last: "2022", bats: "L", throws: "L", bwar: 17.9 },
+  { id: 114102, slug: "mark-fidrych", name: "Mark Fidrych", pos: "P", debut: "1976", last: "1980", bats: "R", throws: "R", bwar: 11.3 },
+  { id: 460086, slug: "alex-gordon", name: "Alex Gordon", pos: "LF", debut: "2007", last: "2020", bats: "L", throws: "R", bwar: 34.8 },
+  { id: 516416, slug: "jean-segura", name: "Jean Segura", pos: "SS", debut: "2012", last: "2023", bats: "R", throws: "R", bwar: 26.3 },
 ];
 
 export const inducteesBySlug = new Map(inductees.map((p) => [p.slug, p]));
