@@ -2,6 +2,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { Crown, Star } from "lucide-react";
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { inducteesBySlug, type Inductee } from "@/data/inductees";
 import { getPlayerStats, type StatMap } from "@/lib/mlb.functions";
@@ -176,14 +177,6 @@ function PlayerPage() {
             {player.pos} · Bats: {player.bats} / Throws: {player.throws} · {player.debut}–
             {player.last}
           </p>
-          <a
-            href={`https://www.baseball-reference.com/search/search.fcgi?search=${encodeURIComponent(player.name)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-2 inline-block text-xs font-medium text-primary underline underline-offset-2"
-          >
-            View on Baseball-Reference
-          </a>
         </div>
 
         <section className="mt-6">
@@ -274,6 +267,7 @@ function PlayerPage() {
           </div>
         </section>
       </main>
+      <SiteFooter />
     </div>
   );
 }

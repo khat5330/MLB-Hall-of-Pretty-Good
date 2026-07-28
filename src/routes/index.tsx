@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Crown, Star } from "lucide-react";
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { inductees } from "@/data/inductees";
 
@@ -128,6 +129,7 @@ function Index() {
           </table>
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }
