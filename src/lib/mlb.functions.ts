@@ -18,7 +18,7 @@ export type PlayerStats = {
 const BASE = "https://statsapi.mlb.com/api/v1";
 
 export const getPlayerStats = createServerFn({ method: "GET" })
-  .inputValidator((input: { id: number; group: "hitting" | "pitching" }) => input)
+  .inputValidator((input: { id: number; group: "hitting" | "pitching"; bwar?: number | null }) => input)
   .handler(async ({ data }): Promise<PlayerStats> => {
     const url = `${BASE}/people/${data.id}/stats?stats=career,yearByYear&group=${data.group}&gameType=R`;
     const res = await fetch(url);
