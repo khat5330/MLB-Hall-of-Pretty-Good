@@ -1,5 +1,7 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useState } from "react";
+import { Star } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { inducteesBySlug, type Inductee } from "@/data/inductees";
 import { getPlayerStats, type StatMap } from "@/lib/mlb.functions";
@@ -110,6 +112,7 @@ function PlayerPage() {
   const { slug } = Route.useParams();
   const player = inducteesBySlug.get(slug)!;
   const { data } = useSuspenseQuery(statsQueryOptions(player));
+  const [showInnerCircle, setShowInnerCircle] = useState(false);
 
   const isPitcher = data.group === "pitching";
   const cols = isPitcher ? PITCHING_COLS : HITTING_COLS;
@@ -126,9 +129,28 @@ function PlayerPage() {
         </Link>
 
         <div className="mt-3 border-b-2 border-primary pb-4">
-          <h1 className="text-2xl font-bold tracking-tight text-primary sm:text-4xl">
+          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-primary sm:text-4xl">
             {player.name}
+            {player.innerCircle && (
+              <button
+                type="button"
+                onClick={() => setShowInnerCircle((v) => !v)}
+                aria-expanded={showInnerCircle}
+                aria-label="Inner Circle inductee — what does this mean?"
+                title="Inner Circle inductee"
+                className="rounded-sm p-0.5 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <Star className="h-6 w-6 fill-[hsl(45_95%_50%)] text-[hsl(45_80%_38%)] drop-shadow-sm sm:h-8 sm:w-8" />
+              </button>
+            )}
           </h1>
+          {player.innerCircle && showInnerCircle && (
+            <p className="mt-2 border-l-4 border-[hsl(45_95%_50%)] bg-secondary px-3 py-2 text-sm text-foreground">
+              <span className="font-semibold">Inner Circle:</span> {player.name} is a member of
+              the Hall of Pretty Good Inner Circle, having received at least 90% of the vote
+              from the community.
+            </p>
+          )}
           <p className="mt-1 text-sm text-muted-foreground">
             {player.pos} · Bats: {player.bats} / Throws: {player.throws} · {player.debut}–
             {player.last}
