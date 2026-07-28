@@ -16,7 +16,7 @@ export type Inductee = {
  * `id` is the MLB Stats API person id.
  */
 export const inductees: Inductee[] = [
-  { id: 110029, slug: "bobby-abreu", name: "Bobby Abreu", pos: "RF", debut: "1996", last: "2014", bats: "L", throws: "R", bwar: 60.2 },
+  { id: 110029, slug: "bobby-abreu", name: "Bobby Abreu", pos: "RF", debut: "1996", last: "2014", bats: "L", throws: "R" },
   { id: 113744, slug: "jim-edmonds", name: "Jim Edmonds", pos: "CF", debut: "1993", last: "2010", bats: "L", throws: "L" },
   { id: 117863, slug: "kenny-lofton", name: "Kenny Lofton", pos: "CF", debut: "1991", last: "2007", bats: "L", throws: "L" },
   { id: 121640, slug: "tim-salmon", name: "Tim Salmon", pos: "RF", debut: "1992", last: "2006", bats: "R", throws: "R" },
