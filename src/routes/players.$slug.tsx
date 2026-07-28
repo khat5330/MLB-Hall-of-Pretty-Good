@@ -76,6 +76,11 @@ export const Route = createFileRoute("/players/$slug")({
       ],
     };
   },
+  pendingComponent: () => (
+    <div className="mx-auto max-w-5xl px-4 py-12 text-sm text-muted-foreground">
+      Loading stats…
+    </div>
+  ),
   component: PlayerPage,
   errorComponent: ({ error }) => (
     <div className="mx-auto max-w-5xl px-4 py-12" role="alert">
@@ -204,7 +209,7 @@ function PlayerPage() {
                 {data.seasons.map((row, i) => (
                   <tr key={`${row.season}-${row.team}-${i}`}>
                     <td className="font-semibold">{row.season}</td>
-                    <td>{row.team}</td>
+                    <td>{row.team || "Season total"}</td>
                     <td>{row.league}</td>
                     {cols.map(([key]) => (
                       <td key={key}>{fmt(row.stat[key])}</td>
