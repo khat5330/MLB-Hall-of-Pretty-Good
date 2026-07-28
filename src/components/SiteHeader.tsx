@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function SiteHeader() {
   return (
@@ -12,14 +13,17 @@ export function SiteHeader() {
             Inductee Database
           </span>
         </Link>
-        <a
-          href="https://www.instagram.com/hallofprettygoodinductees"
-          target="_blank"
-          rel="noreferrer"
-          className="text-xs font-medium text-primary underline underline-offset-2"
-        >
-          @hallofprettygoodinductees
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="https://www.instagram.com/hallofprettygoodinductees"
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs font-medium text-primary underline underline-offset-2"
+          >
+            @hallofprettygoodinductees
+          </a>
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );
