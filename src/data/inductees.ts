@@ -7,6 +7,7 @@ export type Inductee = {
   last: string;
   bats: string;
   throws: string;
+  bwar?: number | null;
 };
 
 /**

@@ -21,6 +21,7 @@ const HITTING_COLS: Array<[string, string]> = [
   ["obp", "OBP"],
   ["slg", "SLG"],
   ["ops", "OPS"],
+  ["bwar", "bWAR"],
 ];
 
 const PITCHING_COLS: Array<[string, string]> = [
@@ -38,17 +39,18 @@ const PITCHING_COLS: Array<[string, string]> = [
   ["baseOnBalls", "BB"],
   ["strikeOuts", "SO"],
   ["whip", "WHIP"],
+  ["bwar", "bWAR"],
 ];
 
-const HITTING_HERO = ["gamesPlayed", "hits", "homeRuns", "rbi", "stolenBases", "avg", "obp", "ops"];
-const PITCHING_HERO = ["wins", "losses", "era", "inningsPitched", "strikeOuts", "whip", "saves", "gamesStarted"];
+const HITTING_HERO = ["gamesPlayed", "hits", "homeRuns", "rbi", "stolenBases", "avg", "obp", "ops", "bwar"];
+const PITCHING_HERO = ["wins", "losses", "era", "inningsPitched", "strikeOuts", "whip", "saves", "gamesStarted", "bwar"];
 
 const statsQueryOptions = (player: Inductee) =>
   queryOptions({
-    queryKey: ["player-stats", player.id, player.pos],
+    queryKey: ["player-stats", player.id, player.pos, player.bwar],
     queryFn: () =>
       getPlayerStats({
-        data: { id: player.id, group: player.pos === "P" ? "pitching" : "hitting" },
+        data: { id: player.id, group: player.pos === "P" ? "pitching" : "hitting", bwar: player.bwar },
       }),
     staleTime: 1000 * 60 * 60,
   });
@@ -97,9 +99,10 @@ export const Route = createFileRoute("/players/$slug")({
   ),
 });
 
-function fmt(value: StatMap[string] | undefined) {
+function fmt(value: StatMap[string] | undefined, key?: string) {
   if (value === undefined || value === null || value === "" || value === "-.--" || value === ".---")
     return "—";
+  if (key === "bwar" && typeof value === "number") return value.toFixed(1);
   return String(value);
 }
 
@@ -152,7 +155,7 @@ function PlayerPage() {
                     {labels.get(key) ?? key}
                   </dt>
                   <dd className="mt-1 font-mono text-lg font-semibold text-primary">
-                    {fmt(data.career?.[key])}
+                    {fmt(data.career?.[key], key)}
                   </dd>
                 </div>
               ))}
@@ -178,7 +181,7 @@ function PlayerPage() {
                   <tr>
                     <td className="font-semibold">Total</td>
                     {cols.map(([key]) => (
-                      <td key={key}>{fmt(data.career?.[key])}</td>
+                      <td key={key}>{fmt(data.career?.[key], key)}</td>
                     ))}
                   </tr>
                 </tbody>
@@ -212,7 +215,7 @@ function PlayerPage() {
                     <td>{row.team || "Season total"}</td>
                     <td>{row.league}</td>
                     {cols.map(([key]) => (
-                      <td key={key}>{fmt(row.stat[key])}</td>
+                      <td key={key}>{fmt(row.stat[key], key)}</td>
                     ))}
                   </tr>
                 ))}
