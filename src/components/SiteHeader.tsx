@@ -15,12 +15,12 @@ export function SiteHeader() {
         </Link>
         <div className="flex items-center gap-3">
           <a
-            href="https://www.instagram.com/hallofprettygoodinductees"
+            href="https://www.instagram.com/mlbhallofgood"
             target="_blank"
             rel="noreferrer"
             className="text-xs font-medium text-primary underline underline-offset-2"
           >
-            @hallofprettygoodinductees
+            The Official Hall of Pretty Good!
           </a>
           <ThemeToggle />
         </div>
