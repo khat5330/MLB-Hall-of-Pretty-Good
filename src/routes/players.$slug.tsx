@@ -122,8 +122,8 @@ function fmt(value: StatMap[string] | undefined, key?: string) {
 
 function PlayerPage() {
   const { slug } = Route.useParams();
-  const { data } = useSuspenseQuery(playerQueryOptions(slug));
-  const player = data!;
+  const { data: playerData } = useSuspenseQuery(playerQueryOptions(slug));
+  const player = playerData!;
   const { data } = useSuspenseQuery(statsQueryOptions(player));
   const [showInnerCircle, setShowInnerCircle] = useState(false);
   const [showPrettyUnanimous, setShowPrettyUnanimous] = useState(false);
