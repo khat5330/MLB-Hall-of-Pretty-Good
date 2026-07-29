@@ -20,6 +20,12 @@ export function SiteHeader() {
           >
             Honorary
           </Link>
+          <Link
+            to="/admin"
+            className="text-sm font-medium text-muted-foreground underline-offset-2 hover:text-primary hover:underline [&.active]:font-semibold [&.active]:text-primary"
+          >
+            Admin
+          </Link>
         </div>
         <div className="flex items-center gap-3">
           <a
