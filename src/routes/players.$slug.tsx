@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Crown, Star } from "lucide-react";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { inducteesBySlug, type Inductee } from "@/data/inductees";
+import { getInductee, type InducteeRow } from "@/lib/inductees.functions";
 import { getPlayerStats, type StatMap } from "@/lib/mlb.functions";
 
 const HITTING_COLS: Array<[string, string]> = [
@@ -48,30 +48,41 @@ const PITCHING_COLS: Array<[string, string]> = [
 const HITTING_HERO = ["gamesPlayed", "hits", "homeRuns", "rbi", "stolenBases", "avg", "obp", "ops", "bwar"];
 const PITCHING_HERO = ["wins", "losses", "era", "inningsPitched", "strikeOuts", "whip", "saves", "gamesStarted", "bwar"];
 
-const statsQueryOptions = (player: Inductee) =>
+const playerQueryOptions = (slug: string) =>
   queryOptions({
-    queryKey: ["player-stats", player.id, player.pos, player.bwar],
+    queryKey: ["inductee", slug],
+    queryFn: () => getInductee({ data: { slug } }),
+    staleTime: 1000 * 60 * 5,
+  });
+
+const statsQueryOptions = (player: InducteeRow) =>
+  queryOptions({
+    queryKey: ["player-stats", player.mlbId, player.pos, player.bwar],
     queryFn: () =>
       getPlayerStats({
-        data: { id: player.id, group: player.pos === "P" ? "pitching" : "hitting", bwar: player.bwar },
+        data: {
+          id: player.mlbId,
+          group: player.pos === "P" ? "pitching" : "hitting",
+          bwar: player.bwar,
+        },
       }),
     staleTime: 1000 * 60 * 60,
   });
 
 export const Route = createFileRoute("/players/$slug")({
-  loader: ({ params, context }) => {
-    const player = inducteesBySlug.get(params.slug);
+  loader: async ({ params, context }) => {
+    const player = await context.queryClient.ensureQueryData(playerQueryOptions(params.slug));
     if (!player) throw notFound();
-    return context.queryClient.ensureQueryData(statsQueryOptions(player));
+    await context.queryClient.ensureQueryData(statsQueryOptions(player));
+    return null;
   },
   head: ({ params }) => {
-    const player = inducteesBySlug.get(params.slug);
-    const title = player
-      ? `${player.name} — Hall of Pretty Good Stats`
-      : "Player — Hall of Pretty Good";
-    const description = player
-      ? `Career and season-by-season statistics for ${player.name} (${player.debut}–${player.last}), inductee of the MLB Hall of Pretty Good.`
-      : "Career and season-by-season statistics for Hall of Pretty Good inductees.";
+    const pretty = params.slug
+      .split("-")
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ");
+    const title = `${pretty} — Hall of Pretty Good Stats`;
+    const description = `Career and season-by-season statistics for ${pretty}, inductee of the MLB Hall of Pretty Good.`;
     return {
       meta: [
         { title },
@@ -111,7 +122,8 @@ function fmt(value: StatMap[string] | undefined, key?: string) {
 
 function PlayerPage() {
   const { slug } = Route.useParams();
-  const player = inducteesBySlug.get(slug)!;
+  const { data: playerData } = useSuspenseQuery(playerQueryOptions(slug));
+  const player = playerData!;
   const { data } = useSuspenseQuery(statsQueryOptions(player));
   const [showInnerCircle, setShowInnerCircle] = useState(false);
   const [showPrettyUnanimous, setShowPrettyUnanimous] = useState(false);
