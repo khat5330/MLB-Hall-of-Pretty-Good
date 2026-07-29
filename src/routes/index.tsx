@@ -1,11 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Crown, Star } from "lucide-react";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { inductees } from "@/data/inductees";
+import { listInductees } from "@/lib/inductees.functions";
+
+const inducteesQueryOptions = queryOptions({
+  queryKey: ["inductees"],
+  queryFn: () => listInductees(),
+  staleTime: 1000 * 60 * 5,
+});
 
 export const Route = createFileRoute("/")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(inducteesQueryOptions),
   head: () => ({
     meta: [
       { title: "MLB Hall of Pretty Good — Inductee Database" },
@@ -22,6 +30,18 @@ export const Route = createFileRoute("/")({
     ],
   }),
   component: Index,
+  pendingComponent: () => (
+    <div className="mx-auto max-w-5xl px-4 py-12 text-sm text-muted-foreground">
+      Loading inductees…
+    </div>
+  ),
+  errorComponent: ({ error }) => (
+    <div className="mx-auto max-w-5xl px-4 py-12" role="alert">
+      <p className="text-sm text-muted-foreground">
+        Could not load the inductee list: {error.message}
+      </p>
+    </div>
+  ),
 });
 
 function normalize(value: string) {
@@ -33,6 +53,7 @@ function normalize(value: string) {
 
 function Index() {
   const [query, setQuery] = useState("");
+  const { data: inductees } = useSuspenseQuery(inducteesQueryOptions);
 
   const results = useMemo(() => {
     const q = normalize(query.trim());
@@ -42,7 +63,7 @@ function Index() {
         )
       : inductees;
     return [...list].sort((a, b) => a.name.localeCompare(b.name));
-  }, [query]);
+  }, [query, inductees]);
 
   return (
     <div className="min-h-screen bg-background">
