@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as HonoraryRouteImport } from './routes/honorary'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlayersSlugRouteImport } from './routes/players.$slug'
 
@@ -22,6 +23,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const HonoraryRoute = HonoraryRouteImport.update({
   id: '/honorary',
   path: '/honorary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,12 +43,14 @@ const PlayersSlugRoute = PlayersSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/honorary': typeof HonoraryRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/players/$slug': typeof PlayersSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/honorary': typeof HonoraryRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/players/$slug': typeof PlayersSlugRoute
@@ -50,20 +58,28 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/honorary': typeof HonoraryRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/players/$slug': typeof PlayersSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/honorary' | '/sitemap.xml' | '/players/$slug'
+  fullPaths: '/' | '/auth' | '/honorary' | '/sitemap.xml' | '/players/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/honorary' | '/sitemap.xml' | '/players/$slug'
-  id: '__root__' | '/' | '/honorary' | '/sitemap.xml' | '/players/$slug'
+  to: '/' | '/auth' | '/honorary' | '/sitemap.xml' | '/players/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/honorary'
+    | '/sitemap.xml'
+    | '/players/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   HonoraryRoute: typeof HonoraryRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   PlayersSlugRoute: typeof PlayersSlugRoute
@@ -85,6 +101,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HonoraryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +127,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   HonoraryRoute: HonoraryRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   PlayersSlugRoute: PlayersSlugRoute,
