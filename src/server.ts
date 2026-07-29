@@ -1,3 +1,12 @@
+// Polyfill WebSocket for SSR (Bun/Node.js) before Supabase loads.
+// The 'ws' package is already a transitive dependency of @supabase/supabase-js.
+// @ts-ignore
+import WS from "ws";
+if (typeof globalThis.WebSocket === "undefined") {
+  // @ts-ignore
+  globalThis.WebSocket = WS;
+}
+
 import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
