@@ -1,4 +1,4 @@
-import { createPublicServerClient } from "./supabase-public.server";
+import { inductees as staticInductees } from "@/data/inductees";
 
 export type InducteeRow = {
   mlbId: number;
@@ -14,58 +14,29 @@ export type InducteeRow = {
   prettyUnanimous: boolean;
 };
 
-const COLUMNS =
-  "mlb_id, slug, name, pos, debut, last, bats, throws, bwar, inner_circle, pretty_unanimous";
-
-type RawRow = {
-  mlb_id: number;
-  slug: string;
-  name: string;
-  pos: string;
-  debut: string;
-  last: string;
-  bats: string;
-  throws: string;
-  bwar: number | string | null;
-  inner_circle: boolean;
-  pretty_unanimous: boolean;
-};
-
-function toInductee(row: RawRow): InducteeRow {
+function toInducteeRow(i: (typeof staticInductees)[number]): InducteeRow {
   return {
-    mlbId: row.mlb_id,
-    slug: row.slug,
-    name: row.name,
-    pos: row.pos,
-    debut: row.debut,
-    last: row.last,
-    bats: row.bats,
-    throws: row.throws,
-    bwar: row.bwar === null ? null : Number(row.bwar),
-    innerCircle: row.inner_circle,
-    prettyUnanimous: row.pretty_unanimous,
+    mlbId: i.id,
+    slug: i.slug,
+    name: i.name,
+    pos: i.pos,
+    debut: i.debut,
+    last: i.last,
+    bats: i.bats ?? "",
+    throws: i.throws ?? "",
+    bwar: i.bwar ?? null,
+    innerCircle: i.innerCircle ?? false,
+    prettyUnanimous: i.prettyUnanimous ?? false,
   };
 }
 
 export async function fetchPublishedInductees(): Promise<InducteeRow[]> {
-  const supabase = createPublicServerClient();
-  const { data, error } = await supabase
-    .from("inductees")
-    .select(COLUMNS)
-    .eq("published", true)
-    .order("name", { ascending: true });
-  if (error) throw new Error(error.message);
-  return (data ?? []).map((row) => toInductee(row as RawRow));
+  return [...staticInductees]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(toInducteeRow);
 }
 
 export async function fetchInducteeBySlug(slug: string): Promise<InducteeRow | null> {
-  const supabase = createPublicServerClient();
-  const { data, error } = await supabase
-    .from("inductees")
-    .select(COLUMNS)
-    .eq("published", true)
-    .eq("slug", slug)
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  return data ? toInductee(data as RawRow) : null;
+  const found = staticInductees.find((i) => i.slug === slug);
+  return found ? toInducteeRow(found) : null;
 }
