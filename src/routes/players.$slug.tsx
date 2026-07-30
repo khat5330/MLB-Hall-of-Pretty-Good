@@ -45,8 +45,28 @@ const PITCHING_COLS: Array<[string, string]> = [
   ["bwar", "bWAR"],
 ];
 
-const HITTING_HERO = ["gamesPlayed", "hits", "homeRuns", "rbi", "stolenBases", "avg", "obp", "ops", "bwar"];
-const PITCHING_HERO = ["wins", "losses", "era", "inningsPitched", "strikeOuts", "whip", "saves", "gamesStarted", "bwar"];
+const HITTING_HERO = [
+  "gamesPlayed",
+  "hits",
+  "homeRuns",
+  "rbi",
+  "stolenBases",
+  "avg",
+  "obp",
+  "ops",
+  "bwar",
+];
+const PITCHING_HERO = [
+  "wins",
+  "losses",
+  "era",
+  "inningsPitched",
+  "strikeOuts",
+  "whip",
+  "saves",
+  "gamesStarted",
+  "bwar",
+];
 
 const playerQueryOptions = (slug: string) =>
   queryOptions({
@@ -93,9 +113,7 @@ export const Route = createFileRoute("/players/$slug")({
     };
   },
   pendingComponent: () => (
-    <div className="mx-auto max-w-5xl px-4 py-12 text-sm text-muted-foreground">
-      Loading stats…
-    </div>
+    <div className="mx-auto max-w-5xl px-4 py-12 text-sm text-muted-foreground">Loading stats…</div>
   ),
   component: PlayerPage,
   errorComponent: ({ error }) => (
@@ -172,17 +190,17 @@ function PlayerPage() {
           </h1>
           {player.innerCircle && showInnerCircle && (
             <p className="mt-2 border-l-4 border-[hsl(45_95%_50%)] bg-secondary px-3 py-2 text-sm text-foreground">
-              <span className="font-semibold">Inner Circle:</span> {player.name} is a member of
-              the Hall of Pretty Good Inner Circle, having received at least 90% of the vote
-              from the community.
+              <span className="font-semibold">Inner Circle:</span> {player.name} is a member of the
+              Hall of Pretty Good Inner Circle, having received at least 90% of the vote from the
+              community.
             </p>
           )}
           {player.prettyUnanimous && showPrettyUnanimous && (
             <p className="mt-2 border-l-4 border-[hsl(45_95%_50%)] bg-secondary px-3 py-2 text-sm text-foreground">
-              <span className="font-semibold">Pretty Unanimous:</span> {player.name} holds the
-              high honor of being a Pretty Unanimous inductee to the Hall of Pretty Good, having
-              received 99% of the community&apos;s vote — one of the most celebrated distinctions
-              the Hall can bestow.
+              <span className="font-semibold">Pretty Unanimous:</span> {player.name} holds the high
+              honor of being a Pretty Unanimous inductee to the Hall of Pretty Good, having received
+              99% of the community&apos;s vote — one of the most celebrated distinctions the Hall
+              can bestow.
             </p>
           )}
           <p className="mt-1 text-sm text-muted-foreground">

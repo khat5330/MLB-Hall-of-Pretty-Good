@@ -86,14 +86,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "MLB Hall of Pretty Good — Inductee Database" },
       {
         property: "og:description",
-        content: "Search every inductee to the MLB Hall of Pretty Good and browse full career and season-by-season statistics.",
+        content:
+          "Search every inductee to the MLB Hall of Pretty Good and browse full career and season-by-season statistics.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "MLB Hall of Pretty Good — Inductee Database" },
-      { name: "twitter:description", content: "Search every inductee to the MLB Hall of Pretty Good and browse full career and season-by-season statistics." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b3427b12-5e65-44e1-aafe-90d1fa07b926/id-preview-d066e8d4--ab28169f-d976-4261-91dd-946bd9db27ca.lovable.app-1785213624158.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b3427b12-5e65-44e1-aafe-90d1fa07b926/id-preview-d066e8d4--ab28169f-d976-4261-91dd-946bd9db27ca.lovable.app-1785213624158.png" },
+      {
+        name: "twitter:description",
+        content:
+          "Search every inductee to the MLB Hall of Pretty Good and browse full career and season-by-season statistics.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b3427b12-5e65-44e1-aafe-90d1fa07b926/id-preview-d066e8d4--ab28169f-d976-4261-91dd-946bd9db27ca.lovable.app-1785213624158.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b3427b12-5e65-44e1-aafe-90d1fa07b926/id-preview-d066e8d4--ab28169f-d976-4261-91dd-946bd9db27ca.lovable.app-1785213624158.png",
+      },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },

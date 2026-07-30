@@ -25,7 +25,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "MLB Hall of Pretty Good — Inductee Database" },
       {
         property: "og:description",
-        content: "Search every inductee to the MLB Hall of Pretty Good and browse full career and season-by-season statistics.",
+        content:
+          "Search every inductee to the MLB Hall of Pretty Good and browse full career and season-by-season statistics.",
       },
     ],
   }),
@@ -58,9 +59,7 @@ function Index() {
   const results = useMemo(() => {
     const q = normalize(query.trim());
     const list = q
-      ? inductees.filter(
-          (p) => normalize(p.name).includes(q) || normalize(p.pos).startsWith(q),
-        )
+      ? inductees.filter((p) => normalize(p.name).includes(q) || normalize(p.pos).startsWith(q))
       : inductees;
     return [...list].sort((a, b) => a.name.localeCompare(b.name));
   }, [query, inductees]);
@@ -74,8 +73,8 @@ function Index() {
           The MLB Hall of Pretty Good
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Every inductee, with full career totals and a season-by-season breakdown. Stats
-          courtesy of the official MLB Stats API.
+          Every inductee, with full career totals and a season-by-season breakdown. Stats courtesy
+          of the official MLB Stats API.
         </p>
 
         <div className="mt-6">

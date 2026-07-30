@@ -20,15 +20,15 @@ The dev server starts on **port 5000**.
 
 ## Data
 
-Inductee data lives in `src/data/inductees.ts` as a static array. The server functions in `src/lib/inductees.server.ts` read directly from this file — no database required.
+Inductee data lives in the Supabase `inductees` table. The server functions in `src/lib/inductees.server.ts` query it directly (public reads are scoped to `published = true` rows via RLS). `src/data/inductees.ts` is kept as the historical seed source — see `supabase/migrations/*_seed_inductees.sql` — and is no longer read at runtime.
 
-Honorary inductees (e.g. Pablo Sanchez) are in `src/data/honoraryInductees.ts`.
+Honorary inductees (e.g. Pablo Sanchez) are in `src/data/honoraryInductees.ts` — hand-curated, non-MLB content, still static by design.
 
 Season BWAR data is in `src/data/seasonBwar.ts`.
 
 ## Notes
 
-- The codebase was originally built on Lovable with a Supabase backend. The Supabase integration (`src/integrations/supabase/`) and migrations (`supabase/`) are still present but the server functions now use the static data files instead.
+- The codebase was originally built on Lovable with a Supabase backend, then briefly moved to a static-file data source during the Replit port. It has since been moved back to Supabase to support inductees being added by an automated pipeline (see the review-queue schema in `supabase/migrations/`) rather than only by code deploy.
 - `src/server.ts` polyfills `globalThis.WebSocket` for SSR using the `ws` package (required by the Supabase realtime client that ships as a transitive dependency).
 - The admin route (`/admin`) requires Supabase auth — it will not function without a connected Supabase project.
 

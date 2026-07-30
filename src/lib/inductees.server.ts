@@ -1,4 +1,5 @@
-import { inductees as staticInductees } from "@/data/inductees";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
 export type InducteeRow = {
   mlbId: number;
@@ -14,29 +15,39 @@ export type InducteeRow = {
   prettyUnanimous: boolean;
 };
 
-function toInducteeRow(i: (typeof staticInductees)[number]): InducteeRow {
+function toInducteeRow(row: Tables<"inductees">): InducteeRow {
   return {
-    mlbId: i.id,
-    slug: i.slug,
-    name: i.name,
-    pos: i.pos,
-    debut: i.debut,
-    last: i.last,
-    bats: i.bats ?? "",
-    throws: i.throws ?? "",
-    bwar: i.bwar ?? null,
-    innerCircle: i.innerCircle ?? false,
-    prettyUnanimous: i.prettyUnanimous ?? false,
+    mlbId: row.mlb_id,
+    slug: row.slug,
+    name: row.name,
+    pos: row.pos,
+    debut: row.debut,
+    last: row.last,
+    bats: row.bats ?? "",
+    throws: row.throws ?? "",
+    bwar: row.bwar ?? null,
+    innerCircle: row.inner_circle ?? false,
+    prettyUnanimous: row.pretty_unanimous ?? false,
   };
 }
 
 export async function fetchPublishedInductees(): Promise<InducteeRow[]> {
-  return [...staticInductees]
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map(toInducteeRow);
+  const { data, error } = await supabase
+    .from("inductees")
+    .select("*")
+    .eq("published", true)
+    .order("name", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(toInducteeRow);
 }
 
 export async function fetchInducteeBySlug(slug: string): Promise<InducteeRow | null> {
-  const found = staticInductees.find((i) => i.slug === slug);
-  return found ? toInducteeRow(found) : null;
+  const { data, error } = await supabase
+    .from("inductees")
+    .select("*")
+    .eq("slug", slug)
+    .eq("published", true)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ? toInducteeRow(data) : null;
 }
