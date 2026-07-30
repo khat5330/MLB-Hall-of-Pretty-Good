@@ -61,6 +61,7 @@ export type Database = {
       };
       pending_inductees: {
         Row: {
+          auto_publish_eligible: boolean;
           created_at: string;
           id: string;
           match_candidates: Json;
@@ -71,6 +72,7 @@ export type Database = {
           parsed_inner_circle: boolean;
           parsed_name: string | null;
           posted_at: string | null;
+          published_mlb_id: number | null;
           source: string;
           source_caption: string;
           source_image_url: string | null;
@@ -80,6 +82,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          auto_publish_eligible?: boolean;
           created_at?: string;
           id?: string;
           match_candidates?: Json;
@@ -90,6 +93,7 @@ export type Database = {
           parsed_inner_circle?: boolean;
           parsed_name?: string | null;
           posted_at?: string | null;
+          published_mlb_id?: number | null;
           source?: string;
           source_caption: string;
           source_image_url?: string | null;
@@ -99,6 +103,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          auto_publish_eligible?: boolean;
           created_at?: string;
           id?: string;
           match_candidates?: Json;
@@ -109,6 +114,7 @@ export type Database = {
           parsed_inner_circle?: boolean;
           parsed_name?: string | null;
           posted_at?: string | null;
+          published_mlb_id?: number | null;
           source?: string;
           source_caption?: string;
           source_image_url?: string | null;
@@ -117,7 +123,15 @@ export type Database = {
           status?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "pending_inductees_published_mlb_id_fkey";
+            columns: ["published_mlb_id"];
+            isOneToOne: false;
+            referencedRelation: "inductees";
+            referencedColumns: ["mlb_id"];
+          },
+        ];
       };
       user_roles: {
         Row: {
