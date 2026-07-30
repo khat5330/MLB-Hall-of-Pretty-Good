@@ -6,3 +6,7 @@ pnpm-lock.yaml
 package-lock.json
 bun.lock
 routeTree.gen.ts
+# Hand-formatted one-row-per-player data tables; wrapping them one property
+# per line hurts scannability far more than the 100-char printWidth helps.
+src/data/inductees.ts
+src/data/seasonBwar.ts

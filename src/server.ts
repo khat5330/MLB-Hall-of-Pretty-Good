@@ -1,9 +1,8 @@
 // Polyfill WebSocket for SSR (Bun/Node.js) before Supabase loads.
 // The 'ws' package is already a transitive dependency of @supabase/supabase-js.
-// @ts-ignore
+// @ts-expect-error - 'ws' has no bundled types for this import shape
 import WS from "ws";
 if (typeof globalThis.WebSocket === "undefined") {
-  // @ts-ignore
   globalThis.WebSocket = WS;
 }
 

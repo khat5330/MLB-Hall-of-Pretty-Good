@@ -61,10 +61,8 @@ export function parseInductionCaption(caption: string): ParsedInduction {
     text.match(/bWAR[:\s]+(-?\d{1,3}(?:\.\d+)?)/i);
   const bwar = bwarMatch ? Number(bwarMatch[1]) : null;
 
-  const innerCircle =
-    /inner circle/i.test(text) || (votePct !== null && votePct >= 90);
-  const prettyUnanimous =
-    /pretty unanimous/i.test(text) || (votePct !== null && votePct >= 99);
+  const innerCircle = /inner circle/i.test(text) || (votePct !== null && votePct >= 90);
+  const prettyUnanimous = /pretty unanimous/i.test(text) || (votePct !== null && votePct >= 99);
 
   return { isInduction, name, votePct, bwar, innerCircle, prettyUnanimous };
 }
