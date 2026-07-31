@@ -1,9 +1,10 @@
 # Handoff: Instagram-driven inductee pipeline
 
 Continuity notes for picking this work up in a session with no memory of how it
-got here. Written 2026-07-30. If you're a fresh Claude session reading this:
-read this whole file before touching anything, then check `git log` and
-GitHub PR #10 to confirm the branch still matches what's described below.
+got here. Written 2026-07-30, last updated same day after phase 2. If you're a
+fresh Claude session reading this: read this whole file before touching
+anything, then check `git log` and GitHub PRs #10-#12 to confirm the branch
+still matches what's described below.
 
 ## The project, in brief
 
@@ -57,7 +58,7 @@ independently-shippable phases:
    admin stack (with a fixed auth method), apply a schema change to support
    the auto-publish/needs-review status split, but auto-publish logic itself
    is NOT turned on yet — every manually-pasted caption lands in the queue
-   for approval. *(Not started.)*
+   for approval. *(Done — see below.)*
 3. **Turn on auto-publish** for the manual-paste path — apply the confidence
    rule so clean matches publish immediately and ambiguous ones still queue.
    No new infrastructure, just logic changes. *(Not started.)*
@@ -231,121 +232,110 @@ below. None of it was a flaw in the plan itself.
    than committed. Expect this to keep happening in any future session
    that runs local builds — it's noise, not signal.
 
+## Phase 2 — exactly what was done
+
+Commit `9a53d92` on `claude/project-overview-qky9za`, PR
+[#12](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/12). Restored
+from `be56be8^` (`git show be56be8^:<path>`) with one deliberate change —
+Google OAuth via the deleted `src/integrations/lovable/index.ts` wrapper
+around `@lovable.dev/cloud-auth-js` was replaced with plain Supabase
+`signInWithPassword`, since that OAuth proxy is Lovable-platform-specific
+and is almost certainly why the panel broke during the Replit port in the
+first place.
+
+- Added `supabase/migrations/20260730022544_pending_status_split.sql` —
+  exactly the schema change the original phase 2 plan called for:
+  `status` default changed to `needs_review`, a CHECK constraint limiting it
+  to `needs_review`/`auto_published`/`approved`/`rejected`, plus new
+  `auto_publish_eligible` (unused until phase 3) and `published_mlb_id`
+  columns.
+- Also manually updated `src/integrations/supabase/types.ts` to add those
+  two new columns to the `pending_inductees` table types, since there's no
+  way to run `supabase gen types` from this sandbox — **if a future session
+  has real Supabase access, it's worth double-checking generated types
+  against this hand-written version once the migration is actually applied.**
+- Restored as-is, no changes needed: `src/integrations/supabase/client.server.ts`,
+  `auth-middleware.ts`, `auth-attacher.ts`, `src/routes/_authenticated/route.tsx`,
+  `src/lib/admin.functions.ts`.
+- `src/lib/admin.server.ts` — restored with two changes: `ingestCaption`'s
+  insert uses `status: "needs_review"` instead of the now-invalid `"pending"`
+  (would violate the new CHECK constraint), and `approveQueueItem` now also
+  sets `published_mlb_id: input.mlbId` on the pending row it updates. The
+  loose match-resolution fallback (single-candidate fallback, not just
+  exact-name match) was kept as-is here — it's a fine prefill suggestion for
+  a human reviewer, and is deliberately not the strict rule phase 3 needs
+  for unattended auto-publish.
+- `src/routes/auth.tsx` — rewritten as a plain email/password form (see
+  above). No admin email was hardcoded anywhere — the form is generic, and
+  the admin account itself gets created either via the Supabase dashboard
+  directly or via the pre-existing `claimFirstAdmin` self-claim bootstrap
+  (first authenticated user can claim the admin role if none exists yet).
+  So despite what the phase 1 handoff draft said, **no email needed to be
+  asked or confirmed to build this** — that concern turned out to be moot.
+- `src/routes/_authenticated/admin.tsx` — restored with the query status
+  changed from `'pending'` to `'needs_review'`, plus a new read-only
+  "Auto-published" section added below the actionable "Awaiting review"
+  queue. It queries `status: 'auto_published'` and is always empty right
+  now since nothing auto-publishes yet — exists purely so this file doesn't
+  need another UI pass in phase 3.
+- `src/start.ts` — re-added `attachSupabaseAuth` to `functionMiddleware`
+  (was `[]` after the deletion commit).
+- `src/components/SiteHeader.tsx` — re-added the `/admin` nav link next to
+  the existing Honorary link.
+- `package.json` / `bun.lock` — removed `@lovable.dev/cloud-auth-js`
+  (confirmed nothing else references it), ran `bun install` to update the
+  lockfile.
+- **Not restored, on purpose**: `src/integrations/lovable/index.ts` (the
+  OAuth wrapper — no longer needed at all) and `src/lib/supabase-public.server.ts`
+  (existed pre-deletion but nothing in the restored admin stack or phase 1's
+  `inductees.server.ts` actually imports it — left out rather than restored
+  speculatively; revisit only if something in phase 3/4 turns out to need
+  it).
+
+**Verification performed**: `bun install`, `npx tsc --noEmit`, `bun run
+lint`, `bun run build` all pass clean. Confirmed the route tree actually
+picked up the 3 new routes after rebuilding (a genuine, necessary
+regeneration this time — unlike the harmless reordering noise from phase 1,
+see error #9 above; don't reflexively `git checkout -- routeTree.gen.ts`
+without checking what actually changed first). Booted `bun run dev` with
+Supabase env vars set and curled `/`, `/auth`, `/admin`, `/honorary`: the
+first still 500s on the live data call (expected, same network block as
+phase 1), the other three return clean 200s with no crash. **Not verified**,
+same reason as phase 1: actually applying the migration, creating the admin
+user, signing in, pasting a real caption, and clicking approve/reject — no
+network path to Supabase from this sandbox to exercise any of that live.
+
 ## Current state as of this handoff
 
-- Branch: `claude/project-overview-qky9za`, 3 commits ahead of `main`
-  (`a82e8e7`, `1caadd5`, `99f7767`), pushed, matches `origin`.
-- PR [#10](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/10) is
-  open against `main`, not yet merged, not yet reviewed/approved by the
-  user.
+- Branch: `claude/project-overview-qky9za`, currently equal to `main` plus
+  one unmerged commit (`9a53d92`, the phase 2 work) — the branch gets reset
+  to latest `main` after each PR merges (see workflow note below), so don't
+  assume its history looks like earlier snapshots of this doc.
+- Three PRs so far, all against `main`:
+  [#10](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/10) (phase
+  1) — merged. [#11](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/11)
+  (this handoff doc, split out because it was pushed one commit after #10
+  had already been merged) — merged.
+  [#12](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/12) (phase
+  2) — open, not yet merged/reviewed as of this writing.
+- **Workflow note for future sessions**: once a PR from this branch merges,
+  don't keep stacking new commits on the old branch tip — reset it first
+  (`git fetch origin main && git checkout -B claude/project-overview-qky9za origin/main`)
+  so each new phase's PR contains only that phase's diff, not merged history
+  replayed on top of itself. This was done between phase 1 and phase 2 and
+  should happen again before phase 3.
 - `bun install`, `npx tsc --noEmit`, `bun run lint`, and `bun run build` all
   pass cleanly as of the last commit.
-- The user has applied the 3 required migrations (2 pre-existing schema
-  migrations + the phase 1 seed migration) via the Supabase SQL Editor —
-  **confirm this actually landed** (e.g. `select count(*) from inductees;`
-  should return 83) before trusting that the live site works, since it was
-  never independently verified from inside a session.
-- Phase 2 has not been started. The one thing needed from the user before
-  starting it: **which email address should be the single admin account.**
-  (`nxj9942@gmail.com` was visible in this session's ambient user-context
-  and is a plausible default, but was never explicitly confirmed by the
-  user for this purpose — ask, don't assume.)
-
-## Phase 2 — detailed spec
-
-**Goal**: restore admin login and a manual-paste review queue. No
-auto-publish logic yet — every ingested caption (manual paste only, no
-scraper) lands in the queue for the user to approve by hand. This proves out
-the whole write path with a human still in the loop before trusting any of
-it to run unattended.
-
-**Schema change** — new migration,
-`supabase/migrations/<ts>_pending_status_split.sql`:
-```sql
-ALTER TABLE public.pending_inductees ALTER COLUMN status SET DEFAULT 'needs_review';
-ALTER TABLE public.pending_inductees ADD CONSTRAINT pending_inductees_status_check
-  CHECK (status IN ('needs_review', 'auto_published', 'approved', 'rejected'));
-ALTER TABLE public.pending_inductees
-  ADD COLUMN auto_publish_eligible boolean NOT NULL DEFAULT false,
-  ADD COLUMN published_mlb_id integer REFERENCES public.inductees(mlb_id);
-```
-- `auto_publish_eligible`: records whether the (not-yet-active) confidence
-  rule *would* match at ingest time — a debugging aid, independent of
-  whether a write actually happened. Not used for real branching until
-  phase 3, but adding the column now avoids a second schema migration later.
-- `published_mlb_id`: records what actually landed in `inductees` as a
-  result of a given queue row — distinct from `matched_mlb_id` (the
-  resolver's *suggestion*), because a human approving a `needs_review` row
-  might pick a different candidate than the one it prefilled.
-- No RLS changes needed — the existing `"Admins manage the review queue"`
-  policy is an unconditional `ALL` grant to `has_role(..., 'admin')` and
-  already covers all four status values.
-
-**Restore from `be56be8^`** (the commit right before the deletion — use
-`git show be56be8^:<path>` to pull each file's prior content), **with one
-deliberate change**: swap Lovable OAuth for plain Supabase email/password
-auth. The files, and what changes in each:
-
-- `src/integrations/supabase/client.server.ts` — restore as-is (service-role
-  client, reads `SUPABASE_SERVICE_ROLE_KEY` from `process.env`). This env
-  var needs to be added via **Replit's encrypted Secrets store**, never the
-  committed `.replit` `[userenv.shared]` block (that block is public in
-  git — fine for the anon key already there, not fine for a service-role
-  key).
-- `src/integrations/supabase/auth-middleware.ts` (`requireSupabaseAuth`) and
-  `auth-attacher.ts` (`attachSupabaseAuth`) — restore as-is; these validate
-  and attach the bearer token for server-fn RPCs and have no Lovable
-  dependency at all.
-- `src/start.ts` — re-add `functionMiddleware: [attachSupabaseAuth]` (it's
-  currently `[]` after the deletion commit).
-- `src/routes/_authenticated/route.tsx` — restore as-is (`beforeLoad`
-  redirect to `/auth` if unauthenticated).
-- `src/routes/auth.tsx` — restore, but **replace** the
-  `lovable.auth.signInWithOAuth("google", ...)` call (which goes through
-  the deleted `src/integrations/lovable/index.ts` wrapper around
-  `@lovable.dev/cloud-auth-js`, Lovable's own OAuth proxy — confirmed this
-  is almost certainly why the panel broke during the Replit port, since
-  that proxy has no reason to work once served outside Lovable's platform)
-  with a plain form calling
-  `supabase.auth.signInWithPassword({ email, password })`. The one admin
-  user needs to be created directly in the Supabase dashboard
-  (Authentication → Users → Add user, mark confirmed) — no SMTP setup
-  required for this.
-- `src/lib/admin.server.ts` / `src/lib/admin.functions.ts` — restore
-  `assertAdmin`, `listQueue`, `approveQueueItem`, `rejectQueueItem`, and the
-  first-admin self-claim bootstrap (`claimFirstAdmin`/`getAdminStatus` —
-  it's a nice one-time self-service pattern, keep it). **Extend**
-  `listQueue` to filter by the new 4-value status set instead of the old
-  single `'pending'` value, and **extend** `approveQueueItem` to also set
-  `published_mlb_id` on the pending row when it writes to `inductees`.
-  Reminder of the existing resolution heuristic in the deleted
-  `admin.server.ts` (`ingestCaption`): given `searchPlayers(parsedName)`
-  candidates, `exact = candidates.filter(c => c.name.toLowerCase() ===
-  parsedName.toLowerCase())`, picks `exact[0]` if `exact.length === 1`, else
-  falls back to `candidates[0]` if the raw search returned exactly one
-  hit. That looser fallback is fine here (phase 2) purely as a *prefill
-  suggestion* the human reviews before approving — phase 3 tightens the
-  rule for anything that publishes unattended.
-- `src/routes/_authenticated/admin.tsx` — restore, add a **read-only tab**
-  listing `auto_published` rows for future use (phase 3+) so the user can
-  audit what the bot did without needing to act on it — alongside the
-  existing actionable `needs_review` queue with approve/edit/reject.
-- `src/components/SiteHeader.tsx` — re-add the `/admin` nav link.
-- `package.json` — drop the now-unused `@lovable.dev/cloud-auth-js`
-  dependency. Leave `@lovable.dev/vite-tanstack-config` (a devDependency,
-  unrelated build tooling) alone.
-
-**Security notes carried into this phase**: `has_role()` (already defined,
-`SECURITY DEFINER`, already has its `REVOKE ... FROM PUBLIC, anon` lockdown
-from the second pre-existing migration) gates both the RLS policies and the
-server functions' `assertAdmin()` checks — belt-and-suspenders. Only one
-`user_roles` row should ever exist, via the self-claim bootstrap that
-refuses to run once an admin already exists.
-
-**Verification for this phase**: sign in at `/auth`, paste a real induction
-caption into the admin queue, confirm it appears with `status='needs_review'`,
-approve it, confirm it now appears on `/` and its player page with live MLB
-stats pulled in.
+- Migration status: the user applied phase 1's 3 migrations (2 pre-existing
+  schema + the seed) via the Supabase SQL Editor and confirmed via
+  conversation that this worked — **but the phase 2 migration
+  (`20260730022544_pending_status_split.sql`) has NOT been applied yet** as
+  of this writing (it was written and committed after that confirmation).
+  Don't assume it's live; check or ask before relying on the new columns
+  existing in the real database.
+- No admin user has been created yet in Supabase (the code supports either
+  a dashboard-created user or the `claimFirstAdmin` self-claim flow — either
+  works, no session action needed to enable this).
 
 ## Phase 3 — detailed spec
 
