@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { seasonBwar } from "@/data/seasonBwar";
+import { supabase } from "@/integrations/supabase/client";
 
 export type StatMap = Record<string, string | number | null>;
 
@@ -61,10 +61,31 @@ export const getPlayerStats = createServerFn({ method: "GET" })
     }
 
     // Season-by-season Baseball-Reference WAR, keyed by season year for this player.
+    // Synced from Baseball-Reference by a scheduled job into bwar_seasons (see
+    // supabase/migrations/20260731223533_bwar_seasons.sql and
+    // .github/workflows/sync-bwar.yml) — summing here handles a year split
+    // across teams (traded mid-season) or across batting+pitching (two-way
+    // players) the same way career totals do.
+    //
+    // Non-fatal on failure: bWAR is an enrichment on top of the MLB API stats
+    // this function already tolerates failures on (see the `!res.ok` check
+    // above), not something worth failing the whole page over.
+    const seasonWar: Record<number, number> = {};
+    const { data: bwarRows, error: bwarError } = await supabase
+      .from("bwar_seasons")
+      .select("year_id, war")
+      .eq("mlb_id", data.id);
+    if (bwarError) {
+      console.error(`[bWAR] Failed to load season WAR for mlb_id ${data.id}: ${bwarError.message}`);
+    }
+    for (const row of bwarRows ?? []) {
+      if (row.war === null) continue;
+      seasonWar[row.year_id] = (seasonWar[row.year_id] ?? 0) + row.war;
+    }
+
     // A season's bWAR is a full-season total, so when the MLB API splits a season
     // across multiple teams we attribute the total to the first stint only and
     // leave the other stint rows blank to avoid double-counting.
-    const seasonWar = seasonBwar[data.id] ?? {};
     const usedSeasons = new Set<string>();
 
     return {

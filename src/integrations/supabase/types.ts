@@ -8,6 +8,42 @@ export type Database = {
   };
   public: {
     Tables: {
+      bwar_seasons: {
+        Row: {
+          mlb_id: number;
+          year_id: number;
+          player_type: string;
+          team_id: string | null;
+          stint_id: number;
+          war: number | null;
+          war_rep: number | null;
+          waa: number | null;
+          updated_at: string;
+        };
+        Insert: {
+          mlb_id: number;
+          year_id: number;
+          player_type: string;
+          team_id?: string | null;
+          stint_id?: number;
+          war?: number | null;
+          war_rep?: number | null;
+          waa?: number | null;
+          updated_at?: string;
+        };
+        Update: {
+          mlb_id?: number;
+          year_id?: number;
+          player_type?: string;
+          team_id?: string | null;
+          stint_id?: number;
+          war?: number | null;
+          war_rep?: number | null;
+          waa?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       inductees: {
         Row: {
           bats: string;

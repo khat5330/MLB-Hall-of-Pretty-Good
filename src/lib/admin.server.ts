@@ -99,8 +99,12 @@ export async function ingestCaption(supabase: DB, input: IngestInput) {
   const exact = candidates.filter(
     (c) => c.name.toLowerCase() === (parsed.name ?? "").toLowerCase(),
   );
-  const matched =
-    exact.length === 1 ? exact[0].mlbId : candidates.length === 1 ? candidates[0].mlbId : null;
+  const matchedCandidate =
+    exact.length === 1 ? exact[0] : candidates.length === 1 ? candidates[0] : null;
+  const matched = matchedCandidate?.mlbId ?? null;
+  // Prefer real Baseball-Reference data over whatever number (if any) the
+  // caption text happened to mention.
+  const resolvedBwar = matchedCandidate?.careerBwar ?? parsed.bwar;
 
   const { data, error } = await supabase
     .from("pending_inductees")
@@ -111,11 +115,11 @@ export async function ingestCaption(supabase: DB, input: IngestInput) {
       source_caption: input.caption,
       posted_at: input.postedAt ?? null,
       parsed_name: parsed.name,
-      parsed_bwar: parsed.bwar,
+      parsed_bwar: resolvedBwar,
       parsed_inner_circle: parsed.innerCircle,
       matched_mlb_id: matched,
       match_candidates: candidates,
-      needs_manual_entry: matched === null || parsed.bwar === null,
+      needs_manual_entry: matched === null || resolvedBwar === null,
       status: "needs_review",
     })
     .select("*")

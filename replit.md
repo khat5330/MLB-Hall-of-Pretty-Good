@@ -24,7 +24,7 @@ Inductee data lives in the Supabase `inductees` table. The server functions in `
 
 Honorary inductees (e.g. Pablo Sanchez) are in `src/data/honoraryInductees.ts` — hand-curated, non-MLB content, still static by design.
 
-Season BWAR data is in `src/data/seasonBwar.ts`.
+Career and season-by-season Baseball-Reference WAR (bWAR — not available from the MLB Stats API) live in the Supabase `bwar_seasons` table, synced weekly from Baseball-Reference by `.github/workflows/sync-bwar.yml` using the real `pybaseball` Python library (a plain TypeScript `fetch()` gets blocked by Baseball-Reference's bot protection). That same job refreshes the `bwar` column on already-published `inductees` rows so career totals stay current as players keep accumulating WAR.
 
 ## Notes
 
