@@ -1,0 +1,27 @@
+name: Sync bWAR from Baseball-Reference
+
+on:
+  schedule:
+    # Mondays 09:00 UTC — bWAR doesn't change mid-week; this just needs to
+    # catch up periodically (new seasons, Baseball-Reference revisions).
+    - cron: "0 9 * * 1"
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pybaseball pandas requests
+
+      - name: Sync bWAR into Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python scripts/sync_bwar.py

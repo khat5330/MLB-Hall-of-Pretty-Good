@@ -245,11 +245,19 @@ function QueueCard({ item }: { item: QueueItem }) {
   const [innerCircle, setInnerCircle] = useState(item.parsedInnerCircle);
   const [prettyUnanimous, setPrettyUnanimous] = useState(false);
 
+  // Picking a candidate refreshes the bWAR field from its Baseball-Reference
+  // total (when we have one), so switching matches doesn't leave a stale
+  // number from whichever candidate was previously selected.
+  function selectCandidate(candidate: PlayerCandidate | null) {
+    setSelected(candidate);
+    if (candidate?.careerBwar != null) setBwar(String(candidate.careerBwar));
+  }
+
   const searchMutation = useMutation({
     mutationFn: () => lookup({ data: { name } }),
     onSuccess: (rows) => {
       setCandidates(rows);
-      setSelected(rows[0] ?? null);
+      selectCandidate(rows[0] ?? null);
     },
   });
 
@@ -343,7 +351,7 @@ function QueueCard({ item }: { item: QueueItem }) {
           <select
             value={selected?.mlbId ?? ""}
             onChange={(e) =>
-              setSelected(candidates.find((c) => String(c.mlbId) === e.target.value) ?? null)
+              selectCandidate(candidates.find((c) => String(c.mlbId) === e.target.value) ?? null)
             }
             className="mt-1 w-full rounded-sm border border-input bg-background px-2 py-1.5 text-sm"
           >
