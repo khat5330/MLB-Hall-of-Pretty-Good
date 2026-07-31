@@ -305,37 +305,100 @@ same reason as phase 1: actually applying the migration, creating the admin
 user, signing in, pasting a real caption, and clicking approve/reject — no
 network path to Supabase from this sandbox to exercise any of that live.
 
+## Side quest: automated bWAR (outside the 4-phase plan)
+
+Mid-way through phase 2 testing, the user asked for career and season bWAR
+to be automatically compiled (via `pybaseball`) instead of relying on
+whatever number happened to be in a caption, or a hand-maintained static
+file. This isn't part of the original 4-phase Instagram plan below — it's
+an orthogonal improvement to the same admin/review flow. PR
+[#14](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/14), open as
+of this writing.
+
+**What it does**: `pybaseball`'s bWAR functions just download two public
+bulk CSV files from Baseball-Reference (`war_daily_bat.txt` /
+`war_daily_pitch.txt`) — no HTML scraping. But Baseball-Reference has real
+bot protection (confirmed: a plain `fetch()` against that URL gets a 403;
+`pybaseball` gets past it with `curl_cffi` Chrome TLS impersonation), so
+replicating the fetch in TypeScript inside the live app was ruled out as
+too fragile. Instead: a weekly GitHub Action
+(`.github/workflows/sync-bwar.yml`) runs real `pybaseball` in Python
+(`scripts/sync_bwar.py`) and upserts every row into a new Supabase table,
+`bwar_seasons` (migration
+`supabase/migrations/20260731223533_bwar_seasons.sql`) — not scoped to
+inductees, so lookups work for any player during admin review before
+they're ever inducted. The same job also refreshes the `bwar` column on
+already-published `inductees`, so career totals keep growing automatically
+rather than freezing at whatever they were on approval day. The live app
+stays pure TypeScript throughout; `mlb-search.server.ts`,
+`admin.server.ts`, `admin.tsx`, and `mlb.functions.ts` were updated to read
+from this table instead of caption text / the now-deleted
+`src/data/seasonBwar.ts`.
+
+**Not yet done, needs the user**: this workflow needs `SUPABASE_URL` and
+`SUPABASE_SERVICE_ROLE_KEY` added as **GitHub repository secrets**
+(Settings → Secrets and variables → Actions) before it can run at all —
+can't be set from a session. After merging, it should be triggered once
+manually (Actions tab → "Sync bWAR from Baseball-Reference" → Run
+workflow) rather than waiting for the Monday schedule, so `bwar_seasons`
+isn't sitting empty. **Never tested end-to-end** — no Python/pybaseball
+environment or Supabase network path from this sandbox to actually run the
+sync and confirm the upserts work against the real database. Worth
+watching the first real run's Action logs closely.
+
 ## Current state as of this handoff
 
 - Branch: `claude/project-overview-qky9za`, currently equal to `main` plus
-  one unmerged commit (`9a53d92`, the phase 2 work) — the branch gets reset
-  to latest `main` after each PR merges (see workflow note below), so don't
-  assume its history looks like earlier snapshots of this doc.
-- Three PRs so far, all against `main`:
-  [#10](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/10) (phase
-  1) — merged. [#11](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/11)
-  (this handoff doc, split out because it was pushed one commit after #10
-  had already been merged) — merged.
-  [#12](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/12) (phase
-  2) — open, not yet merged/reviewed as of this writing.
+  one unmerged commit (the bWAR automation work, PR #14) — the branch gets
+  reset to latest `main` after each PR merges (see workflow note below), so
+  don't assume its history looks like earlier snapshots of this doc.
+- PRs so far, all against `main`: [#10](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/10)
+  (phase 1), [#11](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/11)
+  (this handoff doc), [#12](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/12)
+  (phase 2), [#13](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/13)
+  (surfacing admin-page query errors instead of failing silently — found
+  because of the missing-service-role-key issue below) — all merged.
+  [#14](https://github.com/khat5330/MLB-Hall-of-Pretty-Good/pull/14) (the
+  bWAR automation above) — open as of this writing.
 - **Workflow note for future sessions**: once a PR from this branch merges,
   don't keep stacking new commits on the old branch tip — reset it first
   (`git fetch origin main && git checkout -B claude/project-overview-qky9za origin/main`)
-  so each new phase's PR contains only that phase's diff, not merged history
-  replayed on top of itself. This was done between phase 1 and phase 2 and
-  should happen again before phase 3.
+  so each new PR contains only its own diff, not merged history replayed on
+  top of itself. This has been done before every PR so far and should keep
+  happening.
 - `bun install`, `npx tsc --noEmit`, `bun run lint`, and `bun run build` all
   pass cleanly as of the last commit.
-- Migration status: the user applied phase 1's 3 migrations (2 pre-existing
-  schema + the seed) via the Supabase SQL Editor and confirmed via
-  conversation that this worked — **but the phase 2 migration
-  (`20260730022544_pending_status_split.sql`) has NOT been applied yet** as
-  of this writing (it was written and committed after that confirmation).
-  Don't assume it's live; check or ask before relying on the new columns
-  existing in the real database.
-- No admin user has been created yet in Supabase (the code supports either
-  a dashboard-created user or the `claimFirstAdmin` self-claim flow — either
-  works, no session action needed to enable this).
+- **Deployment reality check**: the site is hosted on **Vercel**, not (or
+  not only) Replit as earlier parts of this doc assumed — this surfaced
+  partway through phase 2 when the live site broke with a missing
+  Supabase-env-var error. Vercel needs its own copy of every Supabase env
+  var the app reads, set independently in its dashboard (Settings →
+  Environment Variables) — `.replit`'s env block only applies inside
+  Replit. As of this writing Vercel has `SUPABASE_URL`,
+  `SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_URL`,
+  `VITE_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` (the
+  last one was the fix for the admin-claim button not appearing — the
+  claim-eligibility check runs through the service-role client). If admin
+  features break again with a "Missing Supabase environment variable(s)"
+  error, check Vercel's env vars first.
+- **Also confirmed mid-session**: Lovable Cloud's own AI
+  (`gpt-engineer-app[bot]`) pushes commits directly to `main` in parallel
+  with whatever this session is doing, independent of any PR here — it
+  already caused one real (harmlessly resolved) merge conflict on PR #12
+  by independently restoring the same files. Always `git fetch origin main`
+  and check for unexpected new commits before assuming `main`'s tip is
+  whatever this doc last recorded.
+- Migration status: all migrations through
+  `20260730022544_pending_status_split.sql` (phase 1's three plus phase
+  2's status-split) are confirmed applied to the live database — verified
+  together with the user by querying `information_schema.columns` and
+  `pg_constraint` directly. The new `20260731223533_bwar_seasons.sql`
+  (PR #14) has **not** been applied yet as of this writing.
+- Admin access is live and working: the user created a Supabase auth user
+  and used the `claimFirstAdmin` self-claim button successfully. The
+  review-queue write path (paste caption → appears in queue → approve →
+  appears on the live site) has been tested end-to-end by the user and
+  confirmed working.
 
 ## Phase 3 — detailed spec
 
