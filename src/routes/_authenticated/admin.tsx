@@ -74,6 +74,15 @@ function AdminPage() {
           <p className="mt-6 text-sm text-muted-foreground">Checking your access…</p>
         )}
 
+        {statusQuery.error && (
+          <div className="mt-6 border border-destructive bg-secondary p-5">
+            <h2 className="font-semibold text-destructive">Could not check admin access</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {(statusQuery.error as Error).message}
+            </p>
+          </div>
+        )}
+
         {statusQuery.data && !statusQuery.data.isAdmin && (
           <div className="mt-6 border border-border bg-secondary p-5">
             {statusQuery.data.canClaim ? (
@@ -178,6 +187,9 @@ function AdminConsole() {
           Awaiting review ({pending.data?.length ?? 0})
         </h2>
         {pending.isPending && <p className="mt-3 text-sm text-muted-foreground">Loading…</p>}
+        {pending.error && (
+          <p className="mt-3 text-sm text-destructive">{(pending.error as Error).message}</p>
+        )}
         {pending.data?.length === 0 && (
           <p className="mt-3 text-sm text-muted-foreground">Nothing waiting. All caught up.</p>
         )}
@@ -196,6 +208,9 @@ function AdminConsole() {
           Read-only audit trail of items an automated confidence rule published without review.
           Nothing publishes automatically yet, so this is always empty for now.
         </p>
+        {autoPublished.error && (
+          <p className="mt-3 text-sm text-destructive">{(autoPublished.error as Error).message}</p>
+        )}
         {autoPublished.data?.length === 0 && (
           <p className="mt-3 text-sm text-muted-foreground">Nothing here yet.</p>
         )}
